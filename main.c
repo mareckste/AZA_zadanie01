@@ -91,7 +91,7 @@ typedef struct Graph
 	vertex* array;
 } graph;
 
-struct neighbour* newNeighbour(int dest) // reprezentacia suseda
+neighbour* newNeighbour(int dest) // reprezentacia suseda
 {
 	neighbour *newNode =(neighbour*)malloc(sizeof(neighbour));
 	newNode->index = dest;
@@ -121,7 +121,7 @@ void addEdge(graph *graph, int src, int dest)
 	newNode->next = graph->array[src].head;
 	graph->array[src].head = newNode;
 
-	newNode = newAdjListNode(src);
+	newNode = newNeighbour(src);
 	newNode->next = graph->array[dest].head;
 	graph->array[dest].head = newNode;
 }
