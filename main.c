@@ -71,6 +71,8 @@ typedef struct neighbour {
 
 typedef struct vertex {			//dany vrchol
 	int index;
+	int visited;
+	struct vertex *from;
 	neighbour *head;			// susedia, ich list
 }vertex;
 
@@ -94,7 +96,9 @@ graph* createGraph(int V) {
 
 	for (int i = 0; i < V; ++i) { // init pole vrcholov, kazdy ma spajany zoznam hran
 		gr->array[i].head = NULL;
+		gr->array[i].from = NULL;
 		gr->array[i].index = i;
+		gr->array[i].visited = 0;
 	}
 	return gr;
 }
@@ -109,36 +113,51 @@ void addEdge(graph *graph, int src, int dest) {
 	graph->array[dest].head = newNode;
 }
 
-int bfs_1(graph *g) {
+int length(vertex *a, vertex *u) {
+	int d = 1;
+	while (1) {
+		u = u->from;
+		d++;
+		if (a == u) {
+			return d;
+		}
+		a = a->from;
+		d++;
+		if (a == u) {
+			return d;
+		}
+	}
+}
+
+int bfs(graph *g) {
 	vertex *act = NULL;
-	neighbour *ne = NULL;								//neighbour
-	int *visited = (int *)calloc(g->V, sizeof(int));    //pole visited
+	vertex *u = NULL;
+	neighbour *ne = NULL;												
 	front_q *q = createQueue(10000);
 	int i, least = -1;
 
-	enqueue(q, 0);										//insert prvy vrchol do frontu
+	enqueue(q, 0);														
 
-	while (!isEmpty(q)) {								//pokial front neni prazdny
+	while (!isEmpty(q)) {												
+		act = &(g->array[dequeue(q)]);
+		act->visited = 1;
+		ne = act->head;
 
-		act = &(g->array[dequeue(q)]);                 //vyberieme prvok z frontu
-		if (visited[act->index] == 1) {				   // ak uz bol navstiveny, spustime bfs 2 od daneho vrchola
-			i = bfs_2(act->index, g);					   // vrati nam dlzku kruznice do i
-			if (least == -1 || (least > 0 && i < least)) least = i;     // ak je dlzka kruznice 
-		}
-		else {
-			ne = act->head;
-			while (ne != NULL) {
-				ne = ne->next;
-
+		while (ne != NULL) {
+			u = &(g->array[ne->index]);
+			if (u->from == NULL && u->visited == 0) {
+				u->from = act;
+				enqueue(q, u->index);
 			}
-			visited[act->index] = 1;
+			if (u->from != NULL && u->from != act) { //cycle
+				i = length(u,act);
+			}
+
+
+			ne = ne->next;
 		}
 	}
 	return least;
-}
-
-int bfs_2(int ind, graph *g) {
-
 }
 
 
@@ -159,7 +178,7 @@ int main() {
 				addEdge(g, j, c);
 			}
 		}
-		printf("%d\n", bfs_1(g));
+		printf("%d\n", bfs(g));
 	}
 
 	return 0;
