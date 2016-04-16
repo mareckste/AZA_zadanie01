@@ -4,8 +4,6 @@
 
 #define MAX 100000
 
-int least;
-
 typedef struct Queue
 {
 	int front, rear, size;
@@ -15,7 +13,7 @@ typedef struct Queue
 
 // function to create a queue of given capacity. It initializes size of 
 // queue as 0
-struct front_q* createQueue(unsigned capacity)
+front_q* createQueue(unsigned capacity)
 {
 	front_q* queue = (front_q*) malloc(sizeof(front_q));
 	queue->capacity = capacity;
@@ -82,7 +80,7 @@ typedef struct neighbour {
 typedef struct vertex //dany vrchol
 {
 	int index;
-	neighbour *head;  // susedia
+	neighbour *head;  // susedia, ich list
 }vertex;
 
 typedef struct Graph
@@ -127,22 +125,27 @@ void addEdge(graph *graph, int src, int dest)
 }
 
 int bfs_1(graph *g){
-	vertex *s = &(g->array[0]);
 	vertex *act = NULL;
-	neighbour *ne = NULL; //neighbour
-	int i;
+	neighbour *ne = NULL;								//neighbour
+	int *visited = (int *)calloc(g->V, sizeof(int));    //pole visited
+	front_q *q = createQueue(10000);
+	int i, least = -1;
 
-	insertData(s);
+	enqueue(q, 0);										//insert prvy vrchol do frontu
 
-	while (!isEmpty()) {
-		act = removeData();
+	while (!isEmpty(q)) {								//pokial front neni prazdny
+
+		act = &(g->array[dequeue(q)]);                 //vyberieme prvok z frontu
+		if (visited[act->index] == 1) {				   // ak uz bol navstiveny, spustime bfs 2 od daneho vrchola
+			i = bfs_2(act->index);					   // vrati nam dlzku kruznice do i
+			if (least == -1 || (least > 0 && i < least)) least = i;     // ak je dlzka kruznice 
+		}
 		ne = act->head;
 		while (ne != NULL) {
-			if (g->array[ne->index].visited == 0)
-				insertData(&(g->array[ne->dest]));
 			ne = ne->next;
+
 		}
-		act->visited = 1;
+		visited[act->index] = 1;
 	}
 	
 }
