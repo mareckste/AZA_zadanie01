@@ -104,27 +104,28 @@ graph* createGraph(int V) {
 }
 
 void addEdge(graph *graph, int src, int dest) {
+	dest--;
 	neighbour* newNode = newNeighbour(dest);
 	newNode->next = graph->array[src].head;
 	graph->array[src].head = newNode;
-
-	newNode = newNeighbour(src);
-	newNode->next = graph->array[dest].head;
-	graph->array[dest].head = newNode;
 }
 
 int length(vertex *a, vertex *u) {
 	int d = 1;
 	while (1) {
-		u = u->from;
-		d++;
-		if (a == u) {
-			return d;
+		if (u != NULL) {
+			u = u->from;
+			d++;
+			if (a == u) {
+				return d;
+			}
 		}
-		a = a->from;
-		d++;
-		if (a == u) {
-			return d;
+		if (a != NULL) {
+			a = a->from;
+			d++;
+			if (a == u) {
+				return d;
+			}
 		}
 	}
 }
@@ -135,7 +136,7 @@ int bfs(graph *g) {
 	neighbour *ne = NULL;												
 	front_q *q = createQueue(10000);
 	int i, least = -1;
-
+	
 	enqueue(q, 0);														
 
 	while (!isEmpty(q)) {												
@@ -150,7 +151,9 @@ int bfs(graph *g) {
 				enqueue(q, u->index);
 			}
 			if (u->from != NULL && u->from != act) { //cycle
-				i = length(u,act);
+				i = length(act,u);
+				if (least < 0 || i < least) least = i;
+				if (least == 3) return least;
 			}
 
 
@@ -173,7 +176,7 @@ int main() {
 		g = createGraph(n);
 		for (j = 0; j < n; j++) {
 			scanf("%d", &x); // pocet susedov
-			for (k = 0; k < x; k++) {
+			for (l = 0; l < x; l++) {
 				scanf("%d", &c);
 				addEdge(g, j, c);
 			}
