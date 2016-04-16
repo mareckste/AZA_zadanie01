@@ -150,7 +150,7 @@ int bfs(graph *g) {
 				u->from = act;
 				enqueue(q, u->index);
 			}
-			if (u->from != NULL && u->from != act) { //cycle
+			if (u->from != NULL && u->from != act && u->visited ==0) { //cycle
 				i = length(act,u);
 				if (least < 0 || i < least) least = i;
 				if (least == 3) return least;
